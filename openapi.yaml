@@ -21,8 +21,9 @@ paths:
       x-amazon-apigateway-integration:
         type: "aws"
         uri:
-          Fn::Sub:
-            - arn:aws:apigateway:${AWS::Region}:dynamodb:action/UpdateItem
+          {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/UpdateItem",
+          }
         # credentials: TableArn
         credentials: { "Fn::GetAtt": [ProductsApiRole, Arn] }
         httpMethod: "POST"
