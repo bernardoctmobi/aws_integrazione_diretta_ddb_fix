@@ -71,7 +71,7 @@ paths:
             responseTemplates:
               application/json: '{"Error":"Internal Server Error"}'
 
-  /products:
+  /listato/{Brand}:
     get:
       responses:
         "200":
@@ -94,10 +94,13 @@ paths:
               - |-
                 {
                   "TableName": "${tableName}",
-                  "KeyConditionExpression": "PK = :Product",
+                  "KeyConditionExpression": "PK = :Product AND begins_with(SK, :Brand)",
                   "ExpressionAttributeValues": {
                     ":Product": {
                       "S": "Product"
+                    },
+                    ":Brand": {
+                      "S": "$input.params('Brand')"
                     }
                   }
                 }
