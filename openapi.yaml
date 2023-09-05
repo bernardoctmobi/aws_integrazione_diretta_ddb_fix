@@ -70,6 +70,52 @@ paths:
             statusCode: "500"
             responseTemplates:
               application/json: '{"Error":"Internal Server Error"}'
+
+  /products:
+    get:
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: BAD REQUEST
+        "500":
+          description: INTERNAL ERROR
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri:
+          {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/Query",
+          }
+        credentials: { "Fn::GetAtt": [ProductsApiRole, Arn] }
+        httpMethod: "POST"
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${tableName}",
+                  "KeyConditionExpression": "PK = :Product",
+                  "ExpressionAttributeValues": {
+                    ":Product": {
+                      "S": "Product"
+                    }
+                  }
+                }
+              - { tableName: { Ref: TableName } }
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: '{"Message":"Operation successful"}'
+          "400":
+            statusCode: "400"
+            responseTemplates:
+              application/json: '{"Error":"Bad Request"}'
+          "500":
+            statusCode: "500"
+            responseTemplates:
+              application/json: '{"Error":"Internal Server Error"}'
+
   /products/{PK}/{SK}:
     get:
       responses:
