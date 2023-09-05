@@ -70,63 +70,63 @@ paths:
             statusCode: "500"
             responseTemplates:
               application/json: '{"Error":"Internal Server Error"}'
-  # /carmodels/{PK}/{SK}:
-  #   get:
-  #     responses:
-  #       "200":
-  #         description: OK
-  #       "400":
-  #         description: BAD REQUEST
-  #       "500":
-  #         description: INTERNAL ERROR
-  #     x-amazon-apigateway-integration:
-  #       type: "aws"
-  #       uri:
-  #         {
-  #           "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem",
-  #         }
-  #       credentials: { "Fn::GetAtt": [CarModelsApiRole, Arn] }
-  #       httpMethod: "POST"
-  #       requestTemplates:
-  #         application/json:
-  #           Fn::Sub:
-  #             - |-
-  #               {
-  #                 "TableName": "${tableName}",
-  #                 "Key": {
-  #                   "PK": {
-  #                     "S": "$input.params('PK')"
-  #                   },
-  #                   "SK": {
-  #                     "N": "$input.params('SK')"
-  #                   }
-  #                 }
-  #               }
-  #             - { tableName: { Ref: TableName } }
-  #       responses:
-  #         "200":
-  #           statusCode: "200"
-  #           responseTemplates:
-  #             application/json: |
-  #               #if ($input.path("$") == {})
-  #               {
-  #                 'Message': 'L'oggetto cercato non è presente nel database'
-  #               }
-  #               #else
-  #               {
-  #                 "Brand": $input.json('$.Item.brand.S'),
-  #                 "Model": $input.json('$.Item.model.S'),
-  #                 "Year": $input.json('$.Item.SK.N')
-  #               }
-  #               #end
-  #         "400":
-  #           statusCode: "400"
-  #           responseTemplates:
-  #             application/json: '{"Error":"Bad Request"}'
-  #         "500":
-  #           statusCode: "500"
-  #           responseTemplates:
-  #             application/json: '{"Error":"Internal Server Error"}'
+  /products/{PK}/{SK}:
+    get:
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: BAD REQUEST
+        "500":
+          description: INTERNAL ERROR
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri:
+          {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem",
+          }
+        credentials: { "Fn::GetAtt": [ProductsApiRole, Arn] }
+        httpMethod: "POST"
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${tableName}",
+                  "Key": {
+                    "PK": {
+                      "S": "$input.params('PK')"
+                    },
+                    "SK": {
+                      "S": "$input.params('SK')"
+                    }
+                  }
+                }
+              - { tableName: { Ref: TableName } }
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                #if ($input.path("$") == {})
+                {
+                  'Message': 'L'oggetto cercato non è presente nel database'
+                }
+                #else
+                {
+                  "Brand": $input.json('$.Item.SK.S'),
+                  "Type": $input.json('$.Item.Type.S'),
+                  "Price": $input.json('$.Item.Price.N')
+                }
+                #end
+          "400":
+            statusCode: "400"
+            responseTemplates:
+              application/json: '{"Error":"Bad Request"}'
+          "500":
+            statusCode: "500"
+            responseTemplates:
+              application/json: '{"Error":"Internal Server Error"}'
 
 components:
   schemas:
