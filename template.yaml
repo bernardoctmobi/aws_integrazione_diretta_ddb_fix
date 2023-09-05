@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+
+Parameters:
+  StackName:
+    Type: String
+    Default: DdbServerlessApiDirectIntegration
+  DeploymentStage:
+    Type: String
+    Default: dev
+  TableArn:
+    Description: Arn della tabella "ProductsTable"
+    Type: String
+    Default: arn:aws:dynamodb:eu-west-1:923125397052:table/ProductsTable
+  TableName:
+    Type: String
+    Default: ProductsTable
+
+Resources:
+  # CarModelsTable:
+  #   Type: AWS::DynamoDB::Table
+  #   Properties:
+  #     TableName:
+  #       Ref: TableName
+  #     AttributeDefinitions:
+  #       - AttributeName: 'PK'
+  #         AttributeType: 'S'
+  #       - AttributeName: 'SK'
+  #         AttributeType: 'N'
+  #     KeySchema:
+  #       - AttributeName: 'PK'
+  #         KeyType: 'HASH'
+  #       - AttributeName: 'SK'
+  #         KeyType: 'RANGE'
+  #     BillingMode: 'PAY_PER_REQUEST'
+
+  DirectApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName:
+        Ref: DeploymentStage
+      DefinitionUri: ./openapi.yaml
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       Resource: TableArn
+
+      # DefinitionBody:
+      #   'Fn::Transform':
+      #     Name: AWS::Include
+      #     Parameters:
+      #       Location: ./openapi.yaml
+
+  ProductsApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "DynamoDBCrudPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:GetItem"
+                Resource: !Ref TableArn
