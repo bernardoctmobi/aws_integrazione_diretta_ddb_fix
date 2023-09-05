@@ -38,16 +38,20 @@ paths:
                       "S": $input.json('$.PK')
                     },
                     "SK": {
-                      "N": $input.json('$.SK')
+                      "S": $input.json('$.SK')
                     }
                   },
-                  "UpdateExpression": "SET #details = :details",
+                  "UpdateExpression": "SET #Type = :Type, #Price = :Price",
                   "ExpressionAttributeNames": {
-                    "#details": "details"
+                    "#Type": "Type",
+                    "#Price": "Price"
                   },
                   "ExpressionAttributeValues": {
-                    ":details": {
-                      "S": $input.json('$.Details')
+                    ":Type": {
+                      "S": $input.json('$.Type')
+                    },
+                    ":Price": {
+                      "N": $input.json('$.Price')
                     }
                   },
                   "ReturnValues": "ALL_NEW"
@@ -133,3 +137,10 @@ components:
           type: string
         SK:
           type: string
+        Type:
+          type: string
+        Price:
+          type: number
+      required:
+        - PK
+        - SK

@@ -39,16 +39,15 @@ Resources:
     Properties:
       StageName:
         Ref: DeploymentStage
-      DefinitionUri: ./openapi.yaml
+      # DefinitionUri: ./openapi.yaml
       # Policies:
       #   - DynamoDBCrudPolicy:
       #       Resource: TableArn
-
-      # DefinitionBody:
-      #   'Fn::Transform':
-      #     Name: AWS::Include
-      #     Parameters:
-      #       Location: ./openapi.yaml
+      DefinitionBody:
+        "Fn::Transform":
+          Name: AWS::Include
+          Parameters:
+            Location: ./openapi.yaml
 
   ProductsApiRole:
     Type: AWS::IAM::Role
