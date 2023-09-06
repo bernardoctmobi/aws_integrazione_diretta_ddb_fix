@@ -115,7 +115,7 @@ paths:
             responseTemplates:
               application/json: '{"Error":"Internal Server Error"}'
 
-  /products/{Brand}:
+  /brands/{Brand}:
     get:
       responses:
         "200":
