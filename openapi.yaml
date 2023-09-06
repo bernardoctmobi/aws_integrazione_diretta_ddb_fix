@@ -4,7 +4,51 @@ info:
   version: 1.0.0
 
 paths:
-  /product:
+  /products:
+    get:
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: BAD REQUEST
+        "500":
+          description: INTERNAL ERROR
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri:
+          {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/Query",
+          }
+        credentials: { "Fn::GetAtt": [ProductsApiRole, Arn] }
+        httpMethod: "POST"
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${tableName}",
+                  "KeyConditionExpression": "PK = :Product",
+                  "ExpressionAttributeValues": {
+                    ":Product": {
+                      "S": "Product"
+                    }
+                  }
+                }
+              - { tableName: { Ref: TableName } }
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: '{"Message":"Operation successful"}'
+          "400":
+            statusCode: "400"
+            responseTemplates:
+              application/json: '{"Error":"Bad Request"}'
+          "500":
+            statusCode: "500"
+            responseTemplates:
+              application/json: '{"Error":"Internal Server Error"}'
+
     post:
       responses:
         200:
@@ -71,52 +115,7 @@ paths:
             responseTemplates:
               application/json: '{"Error":"Internal Server Error"}'
 
-  /productList:
-    get:
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: BAD REQUEST
-        "500":
-          description: INTERNAL ERROR
-      x-amazon-apigateway-integration:
-        type: "aws"
-        uri:
-          {
-            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/Query",
-          }
-        credentials: { "Fn::GetAtt": [ProductsApiRole, Arn] }
-        httpMethod: "POST"
-        requestTemplates:
-          application/json:
-            Fn::Sub:
-              - |-
-                {
-                  "TableName": "${tableName}",
-                  "KeyConditionExpression": "PK = :Product",
-                  "ExpressionAttributeValues": {
-                    ":Product": {
-                      "S": "Product"
-                    }
-                  }
-                }
-              - { tableName: { Ref: TableName } }
-        responses:
-          "200":
-            statusCode: "200"
-            responseTemplates:
-              application/json: '{"Message":"Operation successful"}'
-          "400":
-            statusCode: "400"
-            responseTemplates:
-              application/json: '{"Error":"Bad Request"}'
-          "500":
-            statusCode: "500"
-            responseTemplates:
-              application/json: '{"Error":"Internal Server Error"}'
-
-  /productList/{Brand}:
+  /products/{Brand}:
     get:
       responses:
         "200":
@@ -223,6 +222,58 @@ paths:
               application/json: '{"Error":"Internal Server Error"}'
 
   /brands:
+    post:
+      responses:
+        200:
+          description: OK
+        400:
+          description: BAD REQUEST
+        500:
+          description: INTERNAL ERROR
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostRequestSchema"
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri:
+          {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:dynamodb:action/UpdateItem",
+          }
+        # credentials: TableArn
+        credentials: { "Fn::GetAtt": [ProductsApiRole, Arn] }
+        httpMethod: "POST"
+        requestTemplates:
+          application/json:
+            Fn::Sub:
+              - |-
+                {
+                  "TableName": "${tableName}",
+                  "Key": {
+                    "PK": {
+                      "S": $input.json('$.PK')
+                    },
+                    "SK": {
+                      "S": $input.json('$.SK')
+                    }
+                  },
+                  "ReturnValues": "ALL_NEW"
+                }
+              - { tableName: { Ref: TableName } }
+        responses:
+          "200":
+            statusCode: "200"
+            responseTemplates:
+              application/json: '{"Message":"Update successful"}'
+          "400":
+            statusCode: "400"
+            responseTemplates:
+              application/json: '{"Error":"Bad Request"}'
+          "500":
+            statusCode: "500"
+            responseTemplates:
+              application/json: '{"Error":"Internal Server Error"}'
     get:
       responses:
         "200":
